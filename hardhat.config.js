@@ -3,6 +3,8 @@ require('@nomiclabs/hardhat-waffle')
 require('@openzeppelin/hardhat-upgrades')
 //require("@nomicfoundation/hardhat-toolbox");
 /** @type import('hardhat/config').HardhatUserConfig */
+
+CUSTOM_URL = process.env.CUSTOM_URL;
 module.exports = {
   solidity: {
     version: '0.8.13',
