@@ -31,18 +31,18 @@ describe("primary Auction", async function () {
 
     ERC20 = await myToken.deployed();
     //console.log(ERC20.address);
-
+    console.log("hi");
     const NFTMarketplaceERC721 = await ethers.getContractFactory(
       "NFTMarketplaceERC721"
     );
-    const { ADMIN, NAME, SYMBOL, BASE_TOKEN_URI } = process.env;
-    const NFTMarketPlace = await upgrades.deployProxy(NFTMarketplaceERC721, [
-      NAME,
-      SYMBOL,
-      BASE_TOKEN_URI,
-      ADMIN,
-    ]);
+    const { ADMIN, NAME, SYMBOL } = process.env;
+    const NFTMarketPlace = await upgrades.deployProxy(
+      NFTMarketplaceERC721,
+      [NAME, SYMBOL, BASE_TOKEN_URI, ADMIN],
+      { initializer: "initialize" }
+    );
     NFT = await NFTMarketPlace.deployed();
+    console.log("hi");
 
     //console.log(NFT.address);
 
@@ -55,6 +55,7 @@ describe("primary Auction", async function () {
       ROOT_ADMIN
     );
     primaryAuction = await primaryAuctionNFT.deployed();
+    console.log("hi");
   });
 
   it("deploys the contract", async function () {
