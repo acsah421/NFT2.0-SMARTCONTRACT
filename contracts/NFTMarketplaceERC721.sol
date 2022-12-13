@@ -357,9 +357,10 @@ contract NFTMarketplaceERC721 is
   function _beforeTokenTransfer(
     address from,
     address to,
-    uint256 tokenId
+    uint256 tokenId,
+    uint256 batchSize
   ) internal virtual override(ERC721Upgradeable, ERC721EnumerableUpgradeable, ERC721PausableUpgradeable) {
-    super._beforeTokenTransfer(from, to, tokenId);
+    super._beforeTokenTransfer(from, to, tokenId, batchSize);
   }
 
   /**
@@ -384,9 +385,9 @@ contract NFTMarketplaceERC721 is
   function _beforeConsecutiveTokenTransfer(
     address from,
     address to,
-    uint256, /*first*/
+    uint256 tokenId, 
     uint96 size
-  ) internal virtual override(ERC721Upgradeable, ERC721EnumerableUpgradeable, ERC721PausableUpgradeable) {
-    super._beforeTokenTransfer(from, to, size);
+  ) internal virtual {
+    super._beforeTokenTransfer(from, to, tokenId, size);
   }
 }
