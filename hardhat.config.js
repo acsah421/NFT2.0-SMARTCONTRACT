@@ -6,7 +6,7 @@ require("dotenv").config();
 //require("@nomicfoundation/hardhat-toolbox");
 /** @type import('hardhat/config').HardhatUserConfig */
 
-CUSTOM_URL = process.env.CUSTOM_URL;
+// 
 module.exports = {
   solidity: {
     version: "0.8.13",
@@ -26,9 +26,5 @@ module.exports = {
     //   url: "Use your Infura or Alchmey RPC URL",
     //   accounts: ["Use your Account Private Key"],
     // },
-    localhost: {
-      chainId: 1337,
-      url: CUSTOM_URL,
-    },
   },
 };

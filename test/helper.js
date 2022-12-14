@@ -1,12 +1,8 @@
 const { ethers } = require("ethers");
-
-const chainID = 31337;
-const adminPrivateKey =
-  "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
+const chainID = 5;
+const adminPrivateKey ="use your private";
 const Name = "PrimaryAuctionNFTMarketPlace";
-const Version = "1.0.0";
-//const url = "http://127.0.0.1:7545";
-//const provider = new ethers.providers.JsonRpcProvider(url);
+const Version = "0.0.1";
 const wallet = new ethers.Wallet(adminPrivateKey);
 
 const signTypedDataAuctionERC721 = async (
@@ -22,10 +18,6 @@ const signTypedDataAuctionERC721 = async (
   IPFSHash,
   contract
 ) => {
-  // await wallet.connect(provider);
-  //console.log(contract);
-  //console.log("signer address:", wallet.address);
-  //console.log(wallet);
   let signature = await wallet._signTypedData(
     {
       name: Name,
@@ -65,4 +57,17 @@ const signTypedDataAuctionERC721 = async (
   //console.log("Mint signature", signature);
   return signature;
 };
-module.exports = { signTypedDataAuctionERC721 };
+ module.exports = { signTypedDataAuctionERC721 };
+// signTypedDataAuctionERC721(
+//   1,
+//   100,
+//   1000,
+//   1,
+//   "0x0000000000000000000000000000000000000000",
+//   "0xDfAd87e691A73d8EA78198D753e1B7Fd0051d431",
+//   "0x9CCaEbCCdcB5dd5bF2DBDFf363F4B577863e54A6",
+//   "0xDfAd87e691A73d8EA78198D753e1B7Fd0051d431",
+//   500,
+//   "abc",
+//   "0xe401dF22417EaCE64De8f9057Ed61216af978584"
+// );

@@ -1,141 +1,102 @@
-const { assert, expect } = require("chai");
+const { expect } = require("chai");
 const { ethers } = require("hardhat");
 const { signTypedDataAuctionERC721 } = require("./helper");
+let AdminAddress="use your address";
 
-describe("primary Auction", async function () {
-  let PrimaryAuctionNFTMarketPlace,
-    primaryAuctionNFT,
-    owner,
-    buyer1,
-    buyer2,
-    auctioner,
-    ERC20,
-    primaryAuction,
-    NFTMarketPlace,
-    myToken;
-  const TOKEN_ID = 1;
-  const BASE_PRICE = 1000;
-  const SALE_PRICE = 2000;
-  const BID_PRICE = 3000;
-  const QUANTITY = 1;
-  const ROYALTY_PERCENTAGE = 500;
-  const BASE_TOKEN_URI = "ipfs:/abcd";
-  const ERC20_ADDRESS = "0x0000000000000000000000000000000000000000";
-
-  beforeEach(async function () {
-    [owner, buyer1, auctioner] = await ethers.getSigners();
+describe("Testing Primary Auction Smart Contract", async function () {
+  let NFT2_0MarketplaceInstance, PrimaryAuctionContractInstance
+  
+  before(async function () {
+    [owner, buyer1, buyer2] = await ethers.getSigners();
 
     //deploying erc20 token
     // const MyTokenDeploy = await ethers.getContractFactory("MyToken");
     // myToken = await MyTokenDeploy.deploy();
 
     //deploying erc721 contract
-    const NFTMarketplaceERC721 = await ethers.getContractFactory(
-      "NFTMarketplaceERC721"
-    );
-    const { NAME, SYMBOL } = process.env;
-    NFTMarketPlace = await upgrades.deployProxy(NFTMarketplaceERC721, [
-      NAME,
-      SYMBOL,
-      BASE_TOKEN_URI,
-      owner.address,
-    ]);
+    const NFT2_0MarketplaceUpgradable = await ethers.getContractFactory("NFTMarketplaceERC721");
+    NFT2_0MarketplaceInstance = await upgrades.deployProxy(NFT2_0MarketplaceUpgradable, ["NFT Marketplace V2.0","NFT2.0","https://gateway.pinata.cloud/ipfs/",AdminAddress]);
 
     //deploying primary Auction Marketplace;
-
-    PrimaryAuctionNFTMarketPlace = await ethers.getContractFactory(
-      "PrimaryAuctionNFTMarketPlace"
-    );
-    primaryAuctionNFT = await PrimaryAuctionNFTMarketPlace.deploy(
-      [owner.address, ROYALTY_PERCENTAGE],
-      owner.address
-    );
+    const PrimaryAuctionContract = await ethers.getContractFactory("PrimaryAuctionNFTMarketPlace");
+    PrimaryAuctionContractInstance = await PrimaryAuctionContract.deploy([AdminAddress,200],AdminAddress);
 
     //console.log(primaryAuction.address);
   });
 
-  it("deploys the contract", async function () {
-    console.log("Primary Auction deployed to :", primaryAuctionNFT.address);
+  it("Deployed NFT 2.0 Primary Auction Contract", async function () {
+    
+    const getDefaultAdminRole =  await PrimaryAuctionContractInstance.DEFAULT_ADMIN_ROLE();
+    expect(await PrimaryAuctionContractInstance.hasRole(getDefaultAdminRole,owner.address)).is.true;
   });
 
-  it("event is emitted when auction is created", async function () {
-    // console.log("here");
-    const getDefaultAdminRole = await primaryAuctionNFT.DEFAULT_ADMIN_ROLE();
-    const getData = await primaryAuctionNFT.hasRole(
-      getDefaultAdminRole,
-      owner.address
-    );
-    console.log(getData);
+  it("Creating Primary Auction", async function () {
+    // NFT Auction Data
+    let tokenID = 1;
+    let basePrice=100;
+    let salePrice=1000;
+    let quantity=1;
+    let erc20Token = "0x0000000000000000000000000000000000000000";
+    let auctioner = buyer1.address;
+    let royaltyPercentage =500
+    let NFTMarketplaceAddress = NFT2_0MarketplaceInstance.address;
+    let intialBidderPrice = 250;
+    let IPFSHASH="abc"
+    let bidder = buyer2.address;
+    let PrimaryAuctionContractAddress = PrimaryAuctionContractInstance.address
+
     const signature = await signTypedDataAuctionERC721(
-      TOKEN_ID,
-      BASE_PRICE,
-      SALE_PRICE,
-      QUANTITY,
-      ERC20_ADDRESS,
-      buyer1.address,
-      NFTMarketPlace.address,
-      buyer1.address,
-      ROYALTY_PERCENTAGE,
-      BASE_TOKEN_URI,
-      primaryAuctionNFT.address
+      tokenID,
+      basePrice,
+      salePrice,
+      quantity,
+      erc20Token,
+      auctioner,
+      NFTMarketplaceAddress,
+      auctioner,
+      royaltyPercentage,
+      IPFSHASH,
+      PrimaryAuctionContractAddress
     );
-    console.log(signature);
-
-    const metadata = [
-      TOKEN_ID,
-      BASE_PRICE,
-      SALE_PRICE,
-      BID_PRICE,
-      QUANTITY,
-      ERC20_ADDRESS,
-      auctioner.address,
-      NFTMarketPlace.address,
-      owner.address,
-      ROYALTY_PERCENTAGE,
-      BASE_TOKEN_URI,
-    ];
-
     //console.log(signature);
-    //console.log("hi");
-    await expect(
-      primaryAuctionNFT
-        .connect(buyer1)
-        .createAuction(metadata, signature, { value: BID_PRICE })
-    )
-      .to.emit(primaryAuctionNFT, "AuctionCreated")
-      .withArgs(
-        TOKEN_ID,
-        NFTMarketPlace.address,
-        auctioner.address,
-        BASE_PRICE,
-        SALE_PRICE,
-        ERC20_ADDRESS,
-        QUANTITY
-      );
+    const auctionMetaData = [
+      tokenID,
+      basePrice,
+      salePrice,
+      intialBidderPrice,
+      quantity,
+      erc20Token,
+      auctioner,
+      NFTMarketplaceAddress,
+      auctioner,
+      royaltyPercentage,
+      IPFSHASH
+    ];
+   const tx =await PrimaryAuctionContractInstance.connect(buyer2).createAuction(auctionMetaData, signature, { value: 250 })
+   
+   // To check logs and events emited
+   //const receipt = await tx.wait()
+   
+   // Receipt should now contain the events
+   //console.log(receipt.events)
+
+   // Receipt should now contain the logs
+   //console.log(receipt.logs)
   });
 
-  // it("reverts if base price is less than 0", async function () {
-  //   const BASE_PRICE = 0;
-  //   await expect(
-  //     primaryAuctionNFT
-  //       .connect(AUCTIONER)
-  //       .createAuction(
-  //         [
-  //           TOKEN_ID,
-  //           BASE_PRICE,
-  //           SALE_PRICE,
-  //           BID_PRICE,
-  //           QUANTITY,
-  //           ERC20_ADDRESS,
-  //           AUCTIONER.address,
-  //           NFT_ADDRESS,
-  //           ROYALTY_RECEIVER.address,
-  //           ROYALTY_PERCENTAGE,
-  //           BASE_TOKEN_URI,
-  //         ],
-  //         "0x12345667899556777544"
-  //       )
-  //   ).to.be.revertedWith("Create Auction : Zero base price.");
-  // });
+  it("Check Auction is Started", async function () {
+    let tokenID = 1;
+    let NFTMarketplaceAddress = NFT2_0MarketplaceInstance.address;
+    let auctioner = buyer1.address;
+    let intialBidderPrice = 250;
+    let bidder = buyer2.address;
+    console.log("NFT",NFTMarketplaceAddress);
+  let data = await PrimaryAuctionContractInstance.getAuction(tokenID,NFTMarketplaceAddress,auctioner);
+    console.log(data);
+    expect(Number(data.tokenId)).to.equal(tokenID);
+    expect(String(data.currentBidder)).to.equal(bidder);
+    expect(Number(data.bidAmount)).to.equal(intialBidderPrice);
+    
+  });
 });
-//module.exports = { TOKEN_ID };
+

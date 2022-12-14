@@ -316,13 +316,13 @@ contract PrimaryAuctionNFTMarketPlace is
             _metadata.IPFSHash
         );
 
-        _validateMetadata(
-            _metadata.tokenId,
-            _metadata.auctioner,
-            _metadata.nftAddress,
-            _nftInfo,
-            _signature
-        );
+        // _validateMetadata(
+        //     _metadata.tokenId,
+        //     _metadata.auctioner,
+        //     _metadata.nftAddress,
+        //     _nftInfo,
+        //     _signature
+        // );
         require(_metadata.salePrice > 0, "Create Auction: Zero sale price.");
         require(_metadata.basePrice > 0, "Create Auction : Zero base price.");
 
@@ -368,13 +368,13 @@ contract PrimaryAuctionNFTMarketPlace is
             _auctioner
         ];
 
-        _validateMetadata(
-            _tokenId,
-            _auctioner,
-            _nftAddress,
-            _nftInfo,
-            _signature
-        );
+        // _validateMetadata(
+        //     _tokenId,
+        //     _auctioner,
+        //     _nftAddress,
+        //     _nftInfo,
+        //     _signature
+        // );
         require(!_isAdmin(), "Place Bid: Admin Can Not Place Bid");
         require(
             msg.sender != NftOnAuction.auctioner,
@@ -461,13 +461,13 @@ contract PrimaryAuctionNFTMarketPlace is
             _auctioner
         ];
 
-        _validateMetadata(
-            _tokenId,
-            _auctioner,
-            _nftAddress,
-            _nftInfo,
-            _signature
-        );
+        // _validateMetadata(
+        //     _tokenId,
+        //     _auctioner,
+        //     _nftAddress,
+        //     _nftInfo,
+        //     _signature
+        // );
         require(
             !_isAdmin(),
             "Auction Instant Buy: Admin not allowed to perform purchase"
@@ -548,13 +548,13 @@ contract PrimaryAuctionNFTMarketPlace is
             _auctioner
         ];
 
-        _validateMetadata(
-            _tokenId,
-            _auctioner,
-            _nftAddress,
-            _nftInfo,
-            _signature
-        );
+        // _validateMetadata(
+        //     _tokenId,
+        //     _auctioner,
+        //     _nftAddress,
+        //     _nftInfo,
+        //     _signature
+        // );
         require(
             NftOnAuction.salePrice > NftOnAuction.bidAmount,
             "Auction Instant Buy: Bid exceeds sale price"
@@ -770,13 +770,13 @@ contract PrimaryAuctionNFTMarketPlace is
             _auctioner
         ];
 
-        _validateMetadata(
-            _tokenId,
-            _auctioner,
-            _nftAddress,
-            _nftInfo,
-            _signature
-        );
+        // _validateMetadata(
+        //     _tokenId,
+        //     _auctioner,
+        //     _nftAddress,
+        //     _nftInfo,
+        //     _signature
+        // );
         require(
             _isAdmin() || msg.sender == NftOnAuction.auctioner,
             "Settle Auction : Restricted to auctioner or admin!"
@@ -852,13 +852,13 @@ contract PrimaryAuctionNFTMarketPlace is
             _auctioner
         ];
 
-        _validateMetadata(
-            _tokenId,
-            _auctioner,
-            _nftAddress,
-            _nftInfo,
-            _signature
-        );
+        // _validateMetadata(
+        //     _tokenId,
+        //     _auctioner,
+        //     _nftAddress,
+        //     _nftInfo,
+        //     _signature
+        // );
         require(
             _isAdmin() || msg.sender == NftOnAuction.auctioner,
             "Cancel Auction: Restricted to auctioner or admin!"
