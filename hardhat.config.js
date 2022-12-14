@@ -2,6 +2,7 @@ require("@nomiclabs/hardhat-web3");
 require("@nomiclabs/hardhat-waffle");
 require("@openzeppelin/hardhat-upgrades");
 require("@nomiclabs/hardhat-ethers");
+require("dotenv").config();
 //require("@nomicfoundation/hardhat-toolbox");
 /** @type import('hardhat/config').HardhatUserConfig */
 
@@ -25,5 +26,9 @@ module.exports = {
     //   url: "Use your Infura or Alchmey RPC URL",
     //   accounts: ["Use your Account Private Key"],
     // },
+    localhost: {
+      chainId: 1337,
+      url: CUSTOM_URL,
+    },
   },
 };

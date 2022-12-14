@@ -5,122 +5,111 @@ const { signTypedDataAuctionERC721 } = require("./helper");
 describe("primary Auction", async function () {
   let PrimaryAuctionNFTMarketPlace,
     primaryAuctionNFT,
-    accounts,
-    AUCTIONER,
-    ROYALTY_RECEIVER,
-    RECEIVER,
-    NFT,
+    owner,
+    buyer1,
+    buyer2,
+    auctioner,
     ERC20,
-    primaryAuction;
+    primaryAuction,
+    NFTMarketPlace,
+    myToken;
   const TOKEN_ID = 1;
-  const BASE_PRICE = 5;
-  const SALE_PRICE = 10;
-  const BID_PRICE = 15;
-  const QUANTITY = 2;
-  const ROYALTY_PERCENTAGE = 2000;
+  const BASE_PRICE = 1000;
+  const SALE_PRICE = 2000;
+  const BID_PRICE = 3000;
+  const QUANTITY = 1;
+  const ROYALTY_PERCENTAGE = 500;
   const BASE_TOKEN_URI = "ipfs:/abcd";
+  const ERC20_ADDRESS = "0x0000000000000000000000000000000000000000";
 
   beforeEach(async function () {
-    accounts = await ethers.getSigners();
-    AUCTIONER = accounts[0];
-    RECEIVER = accounts[1];
-    ROYALTY_RECEIVER = accounts[2];
+    [owner, buyer1, auctioner] = await ethers.getSigners();
 
-    const MyTokenDeploy = await ethers.getContractFactory("MyToken");
-    const myToken = await MyTokenDeploy.deploy();
+    //deploying erc20 token
+    // const MyTokenDeploy = await ethers.getContractFactory("MyToken");
+    // myToken = await MyTokenDeploy.deploy();
 
-    ERC20 = await myToken.deployed();
-    //console.log(ERC20.address);
-    console.log("hi");
+    //deploying erc721 contract
     const NFTMarketplaceERC721 = await ethers.getContractFactory(
       "NFTMarketplaceERC721"
     );
-    const { ADMIN, NAME, SYMBOL } = process.env;
-    const NFTMarketPlace = await upgrades.deployProxy(
-      NFTMarketplaceERC721,
-      [NAME, SYMBOL, BASE_TOKEN_URI, ADMIN],
-      { initializer: "initialize" }
-    );
-    NFT = await NFTMarketPlace.deployed();
-    console.log("hi");
+    const { NAME, SYMBOL } = process.env;
+    NFTMarketPlace = await upgrades.deployProxy(NFTMarketplaceERC721, [
+      NAME,
+      SYMBOL,
+      BASE_TOKEN_URI,
+      owner.address,
+    ]);
 
-    //console.log(NFT.address);
+    //deploying primary Auction Marketplace;
 
-    const { ROOT_ADMIN, PERCENTAGE } = process.env;
     PrimaryAuctionNFTMarketPlace = await ethers.getContractFactory(
       "PrimaryAuctionNFTMarketPlace"
     );
     primaryAuctionNFT = await PrimaryAuctionNFTMarketPlace.deploy(
-      [RECEIVER.address, PERCENTAGE],
-      ROOT_ADMIN
+      [owner.address, ROYALTY_PERCENTAGE],
+      owner.address
     );
-    primaryAuction = await primaryAuctionNFT.deployed();
-    console.log("hi");
+
+    //console.log(primaryAuction.address);
   });
 
   it("deploys the contract", async function () {
-    console.log("Primary Auction deployed to :", primaryAuction.address);
+    console.log("Primary Auction deployed to :", primaryAuctionNFT.address);
   });
 
   it("event is emitted when auction is created", async function () {
-    console.log("here");
+    // console.log("here");
+    const getDefaultAdminRole = await primaryAuctionNFT.DEFAULT_ADMIN_ROLE();
+    const getData = await primaryAuctionNFT.hasRole(
+      getDefaultAdminRole,
+      owner.address
+    );
+    console.log(getData);
     const signature = await signTypedDataAuctionERC721(
       TOKEN_ID,
       BASE_PRICE,
       SALE_PRICE,
       QUANTITY,
-      ERC20.address,
-      AUCTIONER.address,
-      NFT.address,
-      ROYALTY_RECEIVER.address,
+      ERC20_ADDRESS,
+      buyer1.address,
+      NFTMarketPlace.address,
+      buyer1.address,
       ROYALTY_PERCENTAGE,
       BASE_TOKEN_URI,
-      primaryAuction.address
+      primaryAuctionNFT.address
     );
-    console.log({ signature });
+    console.log(signature);
+
+    const metadata = [
+      TOKEN_ID,
+      BASE_PRICE,
+      SALE_PRICE,
+      BID_PRICE,
+      QUANTITY,
+      ERC20_ADDRESS,
+      auctioner.address,
+      NFTMarketPlace.address,
+      owner.address,
+      ROYALTY_PERCENTAGE,
+      BASE_TOKEN_URI,
+    ];
 
     //console.log(signature);
-    console.log("hi");
+    //console.log("hi");
     await expect(
       primaryAuctionNFT
-        .connect(AUCTIONER)
-        .createAuction(
-          [
-            TOKEN_ID,
-            BASE_PRICE,
-            SALE_PRICE,
-            BID_PRICE,
-            QUANTITY,
-            ERC20.address,
-            AUCTIONER.address,
-            NFT.address,
-            ROYALTY_RECEIVER.address,
-            ROYALTY_PERCENTAGE,
-            BASE_TOKEN_URI,
-          ],
-          signTypedDataAuctionERC721(
-            TOKEN_ID,
-            BASE_PRICE,
-            SALE_PRICE,
-            QUANTITY,
-            ERC20.address,
-            AUCTIONER.address,
-            NFT.address,
-            ROYALTY_RECEIVER.address,
-            ROYALTY_PERCENTAGE,
-            BASE_TOKEN_URI,
-            primaryAuction.address
-          )
-        )
+        .connect(buyer1)
+        .createAuction(metadata, signature, { value: BID_PRICE })
     )
       .to.emit(primaryAuctionNFT, "AuctionCreated")
       .withArgs(
         TOKEN_ID,
-        NFT.address,
-        AUCTIONER.address,
+        NFTMarketPlace.address,
+        auctioner.address,
         BASE_PRICE,
         SALE_PRICE,
-        ERC20.address,
+        ERC20_ADDRESS,
         QUANTITY
       );
   });
