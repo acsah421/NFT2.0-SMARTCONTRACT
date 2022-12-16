@@ -1220,7 +1220,7 @@ describe("Testing Primary Auction Smart Contract", async function () {
   });
 
   describe("cancelling an auction", async function () {
-    it("event is emitted when auction is settled", async function () {
+    it("event is emitted when auction is cancelled", async function () {
       let tokenID = 8;
       let NFTMarketplaceAddress = NFTMarketplaceDeploy.address;
       let auctioner = seller.address;
