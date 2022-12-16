@@ -1156,6 +1156,13 @@ describe("Testing Primary Auction Smart Contract", async function () {
           BidderPrice
         );
     });
+    it("check if nft is transfered to the buyer account", async function () {
+      let tokenID = 7;
+      let currentBidder = buyer2.address;
+      expect(currentBidder).is.equal(
+        await NFTMarketplaceDeploy.ownerOf(tokenID)
+      );
+    });
     it("reverts when admin/auctioner is not the caller", async function () {
       let tokenID = 7;
       let NFTMarketplaceAddress = NFTMarketplaceDeploy.address;
